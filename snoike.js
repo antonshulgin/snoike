@@ -17,9 +17,31 @@
 	window.addEventListener('load', onLoad, false);
 
 	function onLoad() {
-		const grid = produceGrid();
-		console.log(grid);
+		let grid = produceGrid();
+		let snoike = produceSnoike(grid);
+		grid = dropSnoike(snoike, grid);
+		grid = dropApple(grid);
+		console.log({ grid: grid, snoike: snoike });
 		console.log(getRenderedGrid(grid));
+	}
+
+	function dropSnoike(snoike, grid) {
+		let idx;
+		for (idx = 0; idx < snoike.cells.length; idx += 1) {
+			grid.cells[snoike.cells[idx]] = SNK_CELL_SNOIKE;
+		}
+		return grid;
+	}
+
+	function produceSnoike(grid) {
+		const snoike = {};
+		const headX = Math.round(grid.width / 2);
+		const headY = Math.round(grid.height / 2);
+		snoike.cells = [
+			getCellIndex(headX, headY, grid),
+			getCellIndex(headX, (headY - 1), grid)
+		];
+		return snoike;
 	}
 
 	function produceGrid(width, height) {
@@ -30,7 +52,6 @@
 		const cells = new Array(totalCells);
 		grid.cells = resetCells(cells, grid);
 		grid.hasApple = false;
-		grid = dropApple(grid);
 		return grid;
 	}
 
