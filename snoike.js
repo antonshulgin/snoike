@@ -3,15 +3,13 @@
 	'use strict';
 
 	const SNK_CELL_NOTHING = 0;
-	const SNK_SYMBOL_NOTHING = ' ';
-
 	const SNK_CELL_WALL = 1;
-	const SNK_SYMBOL_WALL = '.';
-
 	const SNK_CELL_APPLE = 2;
-	const SNK_SYMBOL_APPLE = '@';
-
 	const SNK_CELL_SNOIKE = 3;
+
+	const SNK_SYMBOL_NOTHING = ' ';
+	const SNK_SYMBOL_WALL = '.';
+	const SNK_SYMBOL_APPLE = '@';
 	const SNK_SYMBOL_SNOIKE = '+';
 
 	const SNK_DIRECTION_UP = 0;
@@ -34,6 +32,8 @@
 	const SNK_KEYCODE_ARROW_UP = 38;
 	const SNK_KEYCODE_ARROW_RIGHT = 39;
 
+	const SNK_KEYCODE_SPACEBAR = 32;
+
 	window.addEventListener('load', onLoad, false);
 
 	function onLoad() {
@@ -55,16 +55,20 @@
 		directionMap[SNK_KEYCODE_ARROW_DOWN] = SNK_DIRECTION_DOWN;
 
 		const actionMap = {};
+		actionMap[SNK_KEYCODE_SPACEBAR] = togglePause;
+
+		const internals = {};
+		internals.direction = SNK_DIRECTION_DOWN;
 
 		let grid = produceGrid(30, 20);
 		let snoike = produceSnoike(grid);
-		let updateInterval = setInterval(nextFrame, 150);
-		let direction;
 
 		window.addEventListener('keydown', dispatchAction, false);
 
+		pause();
+
 		function nextFrame() {
-			moveSnoike(snoike, grid, direction);
+			moveSnoike(snoike, grid, internals.direction);
 			dropSnoike(snoike, grid);
 			if (!grid.hasApple) {
 				dropApple(grid);
@@ -72,18 +76,38 @@
 			console.clear();
 			console.log(getRenderedGrid(grid));
 			if (snoike.isDead) {
-				clearInterval(updateInterval);
+				pause();
 				console.log('ded');
 			}
 		}
 
 		function dispatchAction(event) {
-			const keyCode = event.keyCode;
-			console.log(keyCode);
-			if (directionMap.hasOwnProperty(keyCode)) {
-				direction = directionMap[keyCode];
+			if (snoike.isDead) {
 				return;
 			}
+			event.preventDefault();
+			const keyCode = event.keyCode;
+			if (directionMap.hasOwnProperty(keyCode)) {
+				internals.direction = directionMap[keyCode];
+				return;
+			}
+			if (actionMap.hasOwnProperty(keyCode)) {
+				actionMap[keyCode]();
+			}
+		}
+
+		function resume() {
+			internals.updateInterval = setInterval(nextFrame, 150);
+			internals.isPaused = false;
+		}
+
+		function pause() {
+			clearInterval(internals.updateInterval);
+			internals.isPaused = true;
+		}
+
+		function togglePause() {
+			return internals.isPaused ? resume() : pause();
 		}
 	}
 
@@ -164,8 +188,7 @@
 		const headY = Math.round(grid.height / 2);
 		snoike.cells = [
 			getCellIndex(headX, headY, grid),
-			getCellIndex(headX, headY - 1, grid),
-			getCellIndex(headX, headY - 2, grid)
+			getCellIndex(headX, headY - 1, grid)
 		];
 		snoike.direction = SNK_DIRECTION_DOWN;
 		snoike.isDead = false;
