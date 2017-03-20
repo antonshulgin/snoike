@@ -57,35 +57,56 @@
 		const actionMap = {};
 		actionMap[SNK_KEYCODE_SPACEBAR] = togglePause;
 
-		const internals = {};
-		internals.direction = SNK_DIRECTION_DOWN;
-
-		let grid = produceGrid(30, 20);
+		let grid = produceGrid(32, 24);
 		let snoike = produceSnoike(grid);
+
+		const internals = {};
+		internals.gridContainer = document.getElementById('snoikeContainer');
+		internals.direction = SNK_DIRECTION_DOWN;
 
 		window.addEventListener('keydown', dispatchAction, false);
 
 		pause();
+		setFrame([
+			'         ~ S N O I K E ~          ',
+			'                                  ',
+			'. . . . . . . . . . . . . . . . . ',
+			'                                  ',
+			'                                  ',
+			'            Controls:             ',
+			'                                  ',
+			'      HJKL / Arrows / WASD        ',
+			'                                  ',
+			'                                  ',
+			'. . . . . . . . . . . . . . . . . ',
+			'                                  ',
+			'          [Press space]           '
+		].join('\n'));
 
-		function nextFrame() {
+		function updateFrame() {
+			const frameContent = [];
+			const statusLine = [];
 			moveSnoike(snoike, grid, internals.direction);
 			dropSnoike(snoike, grid);
 			if (!grid.hasApple) {
 				dropApple(grid);
 			}
-			console.clear();
-			console.log(getRenderedGrid(grid));
+			frameContent.push(getRenderedGrid(grid));
+			statusLine.push('Score: ' + snoike.score);
 			if (snoike.isDead) {
 				pause();
-				console.log('ded');
+				statusLine.push('Game over (Refresh page to play again)');
 			}
+			frameContent.push(statusLine.join(' - '));
+			setFrame(frameContent.join('\n'));
+		}
+
+		function setFrame(frameContent) {
+			internals.gridContainer.textContent = frameContent;
 		}
 
 		function dispatchAction(event) {
-			if (snoike.isDead) {
-				return;
-			}
-			event.preventDefault();
+			if (snoike.isDead) { return; }
 			const keyCode = event.keyCode;
 			if (directionMap.hasOwnProperty(keyCode)) {
 				internals.direction = directionMap[keyCode];
@@ -93,17 +114,28 @@
 			}
 			if (actionMap.hasOwnProperty(keyCode)) {
 				actionMap[keyCode]();
+				return;
 			}
 		}
 
 		function resume() {
-			internals.updateInterval = setInterval(nextFrame, 150);
+			pause();
+			internals.updateInterval = setInterval(updateFrame, 150);
 			internals.isPaused = false;
 		}
 
 		function pause() {
 			clearInterval(internals.updateInterval);
 			internals.isPaused = true;
+			setFrame([
+			'         ~ P A U S E D ~          ',
+			'                                  ',
+			'                                  ',
+			'. . . . . . . . . . . . . . . . . ',
+			'                                  ',
+			'                                  ',
+			'          [Press space]           '
+			].join('\n'));
 		}
 
 		function togglePause() {
@@ -125,6 +157,7 @@
 		const headCell = grid.cells[headCellIndex];
 		if (headCell === SNK_CELL_APPLE) {
 			snoike.cells.length += 1;
+			snoike.score += 1;
 			grid.hasApple = false;
 		}
 		snoike.isDead = (headCell === SNK_CELL_WALL) ||
@@ -191,6 +224,7 @@
 			getCellIndex(headX, headY - 1, grid)
 		];
 		snoike.direction = SNK_DIRECTION_DOWN;
+		snoike.score = 0;
 		snoike.isDead = false;
 		return snoike;
 	}

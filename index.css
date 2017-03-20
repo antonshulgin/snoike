@@ -1,3 +1,19 @@
-{
+* {
 	box-sizing: border-box;
+}
+
+html {
+	background-color: #111;
+	color: #aaa;
+	font: 300 16px/1 monospace;
+	text-align: center;
+}
+
+#snoikeContainer {
+	display: inline-block;
+	text-align: left;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
 }
