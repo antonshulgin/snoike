@@ -23,6 +23,12 @@
 	const SNK_KEYCODE_J = 74;
 	const SNK_KEYCODE_K = 75;
 	const SNK_KEYCODE_L = 76;
+
+	const SNK_KEYCODE_W = 87;
+	const SNK_KEYCODE_A = 65;
+	const SNK_KEYCODE_S = 83;
+	const SNK_KEYCODE_D = 68;
+
 	const SNK_KEYCODE_ARROW_LEFT = 37;
 	const SNK_KEYCODE_ARROW_DOWN = 40;
 	const SNK_KEYCODE_ARROW_UP = 38;
@@ -32,14 +38,21 @@
 
 	function onLoad() {
 		const directionMap = {};
+		// HJKL
 		directionMap[SNK_KEYCODE_H] = SNK_DIRECTION_LEFT;
-		directionMap[SNK_KEYCODE_ARROW_LEFT] = SNK_DIRECTION_LEFT;
 		directionMap[SNK_KEYCODE_J] = SNK_DIRECTION_DOWN;
-		directionMap[SNK_KEYCODE_ARROW_DOWN] = SNK_DIRECTION_DOWN;
 		directionMap[SNK_KEYCODE_K] = SNK_DIRECTION_UP;
-		directionMap[SNK_KEYCODE_ARROW_UP] = SNK_DIRECTION_UP;
 		directionMap[SNK_KEYCODE_L] = SNK_DIRECTION_RIGHT;
+		// WASD
+		directionMap[SNK_KEYCODE_W] = SNK_DIRECTION_UP;
+		directionMap[SNK_KEYCODE_A] = SNK_DIRECTION_LEFT;
+		directionMap[SNK_KEYCODE_S] = SNK_DIRECTION_DOWN;
+		directionMap[SNK_KEYCODE_D] = SNK_DIRECTION_RIGHT;
+		// Arrows
+		directionMap[SNK_KEYCODE_ARROW_UP] = SNK_DIRECTION_UP;
+		directionMap[SNK_KEYCODE_ARROW_LEFT] = SNK_DIRECTION_LEFT;
 		directionMap[SNK_KEYCODE_ARROW_RIGHT] = SNK_DIRECTION_RIGHT;
+		directionMap[SNK_KEYCODE_ARROW_DOWN] = SNK_DIRECTION_DOWN;
 
 		const actionMap = {};
 
