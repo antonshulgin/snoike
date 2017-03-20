@@ -23,15 +23,25 @@
 	const SNK_KEYCODE_J = 74;
 	const SNK_KEYCODE_K = 75;
 	const SNK_KEYCODE_L = 76;
+	const SNK_KEYCODE_ARROW_LEFT = 37;
+	const SNK_KEYCODE_ARROW_DOWN = 40;
+	const SNK_KEYCODE_ARROW_UP = 38;
+	const SNK_KEYCODE_ARROW_RIGHT = 39;
 
 	window.addEventListener('load', onLoad, false);
 
 	function onLoad() {
 		const directionMap = {};
 		directionMap[SNK_KEYCODE_H] = SNK_DIRECTION_LEFT;
+		directionMap[SNK_KEYCODE_ARROW_LEFT] = SNK_DIRECTION_LEFT;
 		directionMap[SNK_KEYCODE_J] = SNK_DIRECTION_DOWN;
+		directionMap[SNK_KEYCODE_ARROW_DOWN] = SNK_DIRECTION_DOWN;
 		directionMap[SNK_KEYCODE_K] = SNK_DIRECTION_UP;
+		directionMap[SNK_KEYCODE_ARROW_UP] = SNK_DIRECTION_UP;
 		directionMap[SNK_KEYCODE_L] = SNK_DIRECTION_RIGHT;
+		directionMap[SNK_KEYCODE_ARROW_RIGHT] = SNK_DIRECTION_RIGHT;
+
+		const actionMap = {};
 
 		let grid = produceGrid(30, 20);
 		let snoike = produceSnoike(grid);
@@ -56,6 +66,7 @@
 
 		function dispatchAction(event) {
 			const keyCode = event.keyCode;
+			console.log(keyCode);
 			if (directionMap.hasOwnProperty(keyCode)) {
 				direction = directionMap[keyCode];
 				return;
