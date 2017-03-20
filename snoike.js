@@ -27,24 +27,24 @@
 	window.addEventListener('load', onLoad, false);
 
 	function onLoad() {
-		let grid = produceGrid(30, 20);
-		let snoike = produceSnoike(grid);
-		let updateInterval = setInterval(nextFrame, 150);
-		let direction;
-
 		const directionMap = {};
 		directionMap[SNK_KEYCODE_H] = SNK_DIRECTION_LEFT;
 		directionMap[SNK_KEYCODE_J] = SNK_DIRECTION_DOWN;
 		directionMap[SNK_KEYCODE_K] = SNK_DIRECTION_UP;
 		directionMap[SNK_KEYCODE_L] = SNK_DIRECTION_RIGHT;
 
+		let grid = produceGrid(30, 20);
+		let snoike = produceSnoike(grid);
+		let updateInterval = setInterval(nextFrame, 150);
+		let direction;
+
 		window.addEventListener('keydown', dispatchAction, false);
 
 		function nextFrame() {
-			snoike = moveSnoike(snoike, grid, direction);
-			grid = dropSnoike(snoike, grid);
+			moveSnoike(snoike, grid, direction);
+			dropSnoike(snoike, grid);
 			if (!grid.hasApple) {
-				grid = dropApple(grid);
+				dropApple(grid);
 			}
 			console.clear();
 			console.log(getRenderedGrid(grid));
@@ -75,7 +75,12 @@
 		snoike.cells.length = snoikeLength;
 		grid.cells[tailCellIndex] = SNK_CELL_NOTHING;
 		const headCell = grid.cells[headCellIndex];
-		snoike.isDead = (headCell === SNK_CELL_WALL) || (headCell === SNK_CELL_SNOIKE);
+		if (headCell === SNK_CELL_APPLE) {
+			snoike.cells.length += 1;
+			grid.hasApple = false;
+		}
+		snoike.isDead = (headCell === SNK_CELL_WALL) ||
+			(headCell === SNK_CELL_SNOIKE);
 		return snoike;
 	}
 
