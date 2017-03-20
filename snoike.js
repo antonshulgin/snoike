@@ -3,10 +3,10 @@
 	'use strict';
 
 	const SNK_CELL_NOTHING = 0;
-	const SNK_SYMBOL_NOTHING = '.';
+	const SNK_SYMBOL_NOTHING = ' ';
 
 	const SNK_CELL_WALL = 1;
-	const SNK_SYMBOL_WALL = '#';
+	const SNK_SYMBOL_WALL = '.';
 
 	const SNK_CELL_APPLE = 2;
 	const SNK_SYMBOL_APPLE = '@';
@@ -14,21 +14,117 @@
 	const SNK_CELL_SNOIKE = 3;
 	const SNK_SYMBOL_SNOIKE = '+';
 
+	const SNK_DIRECTION_UP = 0;
+	const SNK_DIRECTION_RIGHT = 1;
+	const SNK_DIRECTION_DOWN = 2;
+	const SNK_DIRECTION_LEFT = 3;
+
+	const SNK_KEYCODE_H = 72;
+	const SNK_KEYCODE_J = 74;
+	const SNK_KEYCODE_K = 75;
+	const SNK_KEYCODE_L = 76;
+
 	window.addEventListener('load', onLoad, false);
 
 	function onLoad() {
-		let grid = produceGrid();
+		let grid = produceGrid(30, 20);
 		let snoike = produceSnoike(grid);
-		grid = dropSnoike(snoike, grid);
-		grid = dropApple(grid);
-		console.log({ grid: grid, snoike: snoike });
-		console.log(getRenderedGrid(grid));
+		let updateInterval = setInterval(nextFrame, 150);
+		let direction;
+
+		const directionMap = {};
+		directionMap[SNK_KEYCODE_H] = SNK_DIRECTION_LEFT;
+		directionMap[SNK_KEYCODE_J] = SNK_DIRECTION_DOWN;
+		directionMap[SNK_KEYCODE_K] = SNK_DIRECTION_UP;
+		directionMap[SNK_KEYCODE_L] = SNK_DIRECTION_RIGHT;
+
+		window.addEventListener('keydown', dispatchAction, false);
+
+		function nextFrame() {
+			snoike = moveSnoike(snoike, grid, direction);
+			grid = dropSnoike(snoike, grid);
+			if (!grid.hasApple) {
+				grid = dropApple(grid);
+			}
+			console.clear();
+			console.log(getRenderedGrid(grid));
+			if (snoike.isDead) {
+				clearInterval(updateInterval);
+				console.log('ded');
+			}
+		}
+
+		function dispatchAction(event) {
+			const keyCode = event.keyCode;
+			if (directionMap.hasOwnProperty(keyCode)) {
+				direction = directionMap[keyCode];
+				return;
+			}
+		}
+	}
+
+	function moveSnoike(snoike, grid, direction) {
+		snoike.direction = sanitizeDirection(snoike.direction, direction);
+		const headCellIndex = getNextCell(snoike, grid, snoike.direction);
+		const tailCellIndex = snoike.cells[snoike.cells.length - 1];
+		if (snoike.cells[0] === headCellIndex) {
+			return snoike;
+		}
+		const snoikeLength = snoike.cells.length;
+		snoike.cells.unshift(headCellIndex);
+		snoike.cells.length = snoikeLength;
+		grid.cells[tailCellIndex] = SNK_CELL_NOTHING;
+		const headCell = grid.cells[headCellIndex];
+		snoike.isDead = (headCell === SNK_CELL_WALL) || (headCell === SNK_CELL_SNOIKE);
+		return snoike;
+	}
+
+	function getNextCell(snoike, grid, direction) {
+		const headCell = snoike.cells[0];
+		if (direction === SNK_DIRECTION_UP) {
+			return headCell - grid.width;
+		}
+		if (direction === SNK_DIRECTION_DOWN) {
+			return headCell + grid.width;
+		}
+		if (direction === SNK_DIRECTION_LEFT) {
+			return headCell - 1;
+		}
+		if (direction === SNK_DIRECTION_RIGHT) {
+			return headCell + 1;
+		}
+		return headCell;
+	}
+
+	function sanitizeDirection(old_direction, new_direction) {
+		if (old_direction === new_direction) {
+			return old_direction;
+		}
+		if ((old_direction === SNK_DIRECTION_UP) &&
+			(new_direction === SNK_DIRECTION_DOWN)) {
+			return old_direction;
+		}
+		if ((old_direction === SNK_DIRECTION_DOWN) &&
+			(new_direction === SNK_DIRECTION_UP)) {
+			return old_direction;
+		}
+		if ((old_direction === SNK_DIRECTION_LEFT) &&
+			(new_direction === SNK_DIRECTION_RIGHT)) {
+			return old_direction;
+		}
+		if ((old_direction === SNK_DIRECTION_RIGHT) &&
+			(new_direction === SNK_DIRECTION_LEFT)) {
+			return old_direction;
+		}
+		return new_direction;
 	}
 
 	function dropSnoike(snoike, grid) {
 		let idx;
+		let snoikeCell;
 		for (idx = 0; idx < snoike.cells.length; idx += 1) {
-			grid.cells[snoike.cells[idx]] = SNK_CELL_SNOIKE;
+			snoikeCell = snoike.cells[idx]; 
+			grid.cells[snoikeCell] = SNK_CELL_SNOIKE;
 		}
 		return grid;
 	}
@@ -39,8 +135,11 @@
 		const headY = Math.round(grid.height / 2);
 		snoike.cells = [
 			getCellIndex(headX, headY, grid),
-			getCellIndex(headX, (headY - 1), grid)
+			getCellIndex(headX, headY - 1, grid),
+			getCellIndex(headX, headY - 2, grid)
 		];
+		snoike.direction = SNK_DIRECTION_DOWN;
+		snoike.isDead = false;
 		return snoike;
 	}
 
@@ -64,7 +163,7 @@
 			for (x = 0; x < grid.width; x += 1) {
 				cellIndex = getCellIndex(x, y, grid);
 				cell = grid.cells[cellIndex];
-				cells.push( cellToSymbol(cell) + ' ');
+				cells.push(cellToSymbol(cell) + ' ');
 			}
 			cells.push('\n');
 		}
