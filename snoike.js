@@ -120,7 +120,7 @@
 
 		function resume() {
 			pause();
-			internals.updateInterval = setInterval(updateFrame, 200);
+			internals.updateInterval = setInterval(updateFrame, 150);
 			internals.isPaused = false;
 		}
 
