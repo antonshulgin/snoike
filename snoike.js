@@ -108,7 +108,7 @@
 		function dispatchAction(event) {
 			if (snoike.isDead) { return; }
 			const keyCode = event.keyCode;
-			if (directionMap.hasOwnProperty(keyCode)) {
+			if (directionMap.hasOwnProperty(keyCode) && !internals.isPaused) {
 				internals.direction = directionMap[keyCode];
 				return;
 			}
@@ -120,7 +120,7 @@
 
 		function resume() {
 			pause();
-			internals.updateInterval = setInterval(updateFrame, 150);
+			internals.updateInterval = setInterval(updateFrame, 175);
 			internals.isPaused = false;
 		}
 
