@@ -1,5 +1,5 @@
 # Snoike
 
-Snake game: take #2. The turn-based version [can be found here](https://github.com/antonshulgin/snoike.c).
+This is a Snake game.
 
 [~ P L A Y ~](https://antonshulgin.github.io/snoike/)
